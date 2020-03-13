@@ -7,6 +7,12 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/modules/")
 # add a "output" directory in the project binary directory
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/output)
 
+find_package(SDL REQUIRED)
+set(OPENGL_GL_PREFERENCE GLVND)
+find_package(OpenGL REQUIRED)
+find_package(GLEW REQUIRED)
+find_package(glfw3 3.2 REQUIRED)
+
 # require Eigen
 find_package(Eigen3 REQUIRED)
 if(${EIGEN3_FOUND})
@@ -56,12 +62,25 @@ message(STATUS "  files " ${include_files})
 file(GLOB_RECURSE source_files src/*.cpp)
 message(STATUS "  files " ${source_files})
 
+# files to compile
+file(GLOB_RECURSE shaders_files shaders/*.glsl)
+message(STATUS "  files " ${shaders_files})
+
 # compile
-add_executable(SimulCol ${include_files} ${source_files} main.cpp)
+add_executable(SimulCol ${include_files} ${source_files} ${shaders_files} main.cpp)
 
 # includes
 include_directories(${EIGEN3_INCLUDE_DIR})
 include_directories(${C3GA_INCLUDE_DIRS})
+include_directories(${SDL_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR} ${GLEW_INCLUDE_DIR})
+include_directories("third-party/include")
+include_directories(/usr/local/include)
+
+# set
+set(ALL_LIBRARIES ${SDL_LIBRARY} ${OPENGL_LIBRARIES} ${GLEW_LIBRARY})
 
 # link
-#target_link_libraries(ga_view ${C3GA_LIBRARIES} )
+target_link_libraries(SimulCol ${ALL_LIBRARIES})
+target_link_libraries(SimulCol glfw)
+
+file(COPY shaders DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
