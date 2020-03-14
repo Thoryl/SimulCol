@@ -2,6 +2,7 @@
 #include "include/FilePath.hpp"
 #include "include/common.hpp"
 #include "include/Sphere.hpp"
+#include "include/FreeflyCamera.hpp"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
@@ -23,7 +24,7 @@ int main(int argc, char** argv) {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
     //Create the window
-    GLFWwindow* windowManager = glfwCreateWindow(1000, 1000, "GLImac", NULL, NULL);
+    GLFWwindow* windowManager = glfwCreateWindow(1000, 1000, "SimulCol", NULL, NULL);
     if (!windowManager)
     {
         std::cerr << "Failed in create Windows" << std::endl;
@@ -96,11 +97,16 @@ int main(int argc, char** argv) {
     // Debinding de l'unique VAO:
     glBindVertexArray(0);
 
-    glm::mat4 ProjMatrix, MVMatrix, NormalMatrix;
+    glm::mat4 MMatrix, ProjMatrix, MVMatrix, NormalMatrix;
+
+    MMatrix = glm::mat4(1);
 
     ProjMatrix = glm::perspective(glm::radians(70.f), 1.f, 0.1f, 100.f);
-    MVMatrix = glm::mat4(1.f);
-    NormalMatrix = glm::transpose(glm::inverse(MVMatrix));
+
+    double xpos, ypos;
+    xpos = ypos = 0;
+
+    FreeflyCamera camera;
 
     // Application loop:
     while (!glfwWindowShouldClose(windowManager)) {
@@ -108,7 +114,13 @@ int main(int argc, char** argv) {
 
         glBindVertexArray(vao);
 
+        glm::mat4 VMatrix = camera.getViewMatrix();
+
+        glm::mat4 MVMatrix = VMatrix;
+
         glm::mat4 MVPMatrix = ProjMatrix * MVMatrix;
+
+        NormalMatrix = glm::transpose(glm::inverse(MVMatrix));
 
         glUniformMatrix4fv(locateMVPMatrix, 1, GL_FALSE, glm::value_ptr(MVPMatrix));
         glUniformMatrix4fv(locateMVMatrix, 1, GL_FALSE, glm::value_ptr(MVMatrix));
@@ -120,48 +132,78 @@ int main(int argc, char** argv) {
 
         glfwSwapBuffers(windowManager);
         glfwPollEvents();
-        int stateFrontKey = glfwGetKey(windowManager, GLFW_KEY_W);
-        if (stateFrontKey == GLFW_PRESS) {
+        int stateWKey = glfwGetKey(windowManager, GLFW_KEY_W);
+        if (stateWKey == GLFW_PRESS) {
+            MMatrix = glm::translate(MMatrix, glm::vec3(0., 0., -0.1));
             sphere.translateFrontOrBack(-1);
             glBindBuffer(GL_ARRAY_BUFFER, vbo);
             glBufferSubData(GL_ARRAY_BUFFER, 0, sphere.getVertexCount() * sizeof(ShapeVertex), sphere.getDataPointer());
             glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
-        int stateBackKey = glfwGetKey(windowManager, GLFW_KEY_S);
-        if (stateBackKey == GLFW_PRESS) {
+        int stateSKey = glfwGetKey(windowManager, GLFW_KEY_S);
+        if (stateSKey == GLFW_PRESS) {
+            MMatrix = glm::translate(MMatrix, glm::vec3(0., 0., 0.1));
             sphere.translateFrontOrBack(1);
             glBindBuffer(GL_ARRAY_BUFFER, vbo);
             glBufferSubData(GL_ARRAY_BUFFER, 0, sphere.getVertexCount() * sizeof(ShapeVertex), sphere.getDataPointer());
             glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
-        int stateLeftKey = glfwGetKey(windowManager, GLFW_KEY_A);
-        if (stateLeftKey == GLFW_PRESS) {
+        int stateAKey = glfwGetKey(windowManager, GLFW_KEY_A);
+        if (stateAKey == GLFW_PRESS) {
             sphere.translateLeftOrRight(-1);
             glBindBuffer(GL_ARRAY_BUFFER, vbo);
             glBufferSubData(GL_ARRAY_BUFFER, 0, sphere.getVertexCount() * sizeof(ShapeVertex), sphere.getDataPointer());
             glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
-        int stateRightKey = glfwGetKey(windowManager, GLFW_KEY_D);
-        if (stateRightKey == GLFW_PRESS) {
+        int stateDKey = glfwGetKey(windowManager, GLFW_KEY_D);
+        if (stateDKey == GLFW_PRESS) {
             sphere.translateLeftOrRight(1);
             glBindBuffer(GL_ARRAY_BUFFER, vbo);
             glBufferSubData(GL_ARRAY_BUFFER, 0, sphere.getVertexCount() * sizeof(ShapeVertex), sphere.getDataPointer());
             glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
-        int stateUpKey = glfwGetKey(windowManager, GLFW_KEY_SPACE);
-        if (stateUpKey == GLFW_PRESS) {
+        int stateSpaceKey = glfwGetKey(windowManager, GLFW_KEY_SPACE);
+        if (stateSpaceKey == GLFW_PRESS) {
             sphere.translateUpOrDown(1);
             glBindBuffer(GL_ARRAY_BUFFER, vbo);
             glBufferSubData(GL_ARRAY_BUFFER, 0, sphere.getVertexCount() * sizeof(ShapeVertex), sphere.getDataPointer());
             glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
-        int stateDownKey = glfwGetKey(windowManager, GLFW_KEY_LEFT_CONTROL);
-        if (stateDownKey == GLFW_PRESS) {
+        int stateCtrKey = glfwGetKey(windowManager, GLFW_KEY_LEFT_CONTROL);
+        if (stateCtrKey == GLFW_PRESS) {
             sphere.translateUpOrDown(-1);
             glBindBuffer(GL_ARRAY_BUFFER, vbo);
             glBufferSubData(GL_ARRAY_BUFFER, 0, sphere.getVertexCount() * sizeof(ShapeVertex), sphere.getDataPointer());
             glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
+        int stateUpKey = glfwGetKey(windowManager, GLFW_KEY_UP);
+        if(stateUpKey == GLFW_PRESS) {
+            camera.moveFront(0.1f);
+        }
+        int stateDownKey = glfwGetKey(windowManager, GLFW_KEY_DOWN);
+        if(stateDownKey == GLFW_PRESS) {
+            camera.moveFront(-0.1f);
+        }
+        int stateLeftKey = glfwGetKey(windowManager, GLFW_KEY_LEFT);
+        if(stateLeftKey == GLFW_PRESS) {
+            camera.moveLeft(0.1f);
+        }
+        int stateRightKey = glfwGetKey(windowManager, GLFW_KEY_RIGHT);
+        if(stateRightKey == GLFW_PRESS) {
+            camera.moveLeft(-0.1f);
+        }
+        double tmpxPos, tmpyPos;
+        glfwGetCursorPos(windowManager, &tmpxPos, &tmpyPos);
+        float xrel = xpos - tmpxPos;
+        float yrel = ypos - tmpyPos;
+        int stateMouseClick = glfwGetMouseButton(windowManager, GLFW_MOUSE_BUTTON_LEFT);
+        if(stateMouseClick == GLFW_PRESS) {
+            camera.rotateUp(yrel);
+            camera.rotateLeft(xrel);
+            //camera.update(xrel, yrel);
+        }
+        xpos = tmpxPos;
+        ypos = tmpyPos;
     }
     glDeleteBuffers(1, &vbo);
     glDeleteVertexArrays(1, &vao);

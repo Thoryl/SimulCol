@@ -17,7 +17,7 @@ public:
         m_radius(radius),
         m_discLat(discLat),
         m_discLong(discLong){
-        m_centerPt = c3ga::point(0., -10., 0.);
+        m_centerPt = c3ga::point(0., 0., 0.);
         build(radius, discLat, discLong); // Construction (voir le .cpp)
     }
 
@@ -28,7 +28,6 @@ public:
         c3ga::Mvec<double> T = (direction * 10) - (0.5 * c3ga::e2<double>() * c3ga::ei<double>());
         m_centerPt = T * m_centerPt * T.inv();
         m_centerPt.roundZero(1e-10);
-        std::cout << "X : " << m_centerPt[c3ga::E1] << " Y : " << m_centerPt[c3ga::E2] << " Z : " << m_centerPt[c3ga::E3] << std::endl;
         build(m_radius, m_discLat, m_discLong);
     }
 
@@ -36,7 +35,6 @@ public:
         c3ga::Mvec<double> T = (direction * 10) - (0.5 * c3ga::e1<double>() * c3ga::ei<double>());
         m_centerPt = T * m_centerPt * T.inv();
         m_centerPt.roundZero(1e-10);
-        std::cout << "X : " << m_centerPt[c3ga::E1] << " Y : " << m_centerPt[c3ga::E2] << " Z : " << m_centerPt[c3ga::E3] << std::endl;
         build(m_radius, m_discLat, m_discLong);
     }
 
@@ -44,7 +42,6 @@ public:
         c3ga::Mvec<double> T = (direction * 10) - (0.5 * c3ga::e3<double>() * c3ga::ei<double>());
         m_centerPt = T * m_centerPt * T.inv();
         m_centerPt.roundZero(1e-10);
-        std::cout << "X : " << m_centerPt[c3ga::E1] << " Y : " << m_centerPt[c3ga::E2] << " Z : " << m_centerPt[c3ga::E3] << std::endl;
         build(m_radius, m_discLat, m_discLong);
     }
 
@@ -56,6 +53,10 @@ public:
     // Renvoit le nombre de vertex
     GLsizei getVertexCount() const {
         return m_nVertexCount;
+    }
+
+    c3ga::Mvec<double> getCenterPt(){
+        return m_centerPt;
     }
 
 private:
