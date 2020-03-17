@@ -3,6 +3,7 @@
 #include "include/common.hpp"
 #include "include/Sphere.hpp"
 #include "include/FreeflyCamera.hpp"
+#include "include/Cube.hpp"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
@@ -59,22 +60,23 @@ int main(int argc, char** argv) {
      * HERE SHOULD COME THE INITIALIZATION CODE
      *********************************/
     Sphere sphere(1, 32 , 16);
+    Cube cube;
 
-    GLuint vbo, vao;
+    GLuint sphereVbo, sphereVao;
 
-    glGenBuffers(1, &vbo);
+    glGenBuffers(1, &sphereVbo);
 
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, sphereVbo);
 
     glBufferData(GL_ARRAY_BUFFER, sphere.getVertexCount() * sizeof(ShapeVertex), sphere.getDataPointer(), GL_DYNAMIC_DRAW);
 
     // Debinding d'un VBO sur la cible GL_ARRAY_BUFFER:
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    glGenVertexArrays(1, &vao);
+    glGenVertexArrays(1, &sphereVao);
 
     // Binding de l'unique VAO:
-    glBindVertexArray(vao);
+    glBindVertexArray(sphereVao);
 
     const GLuint VERTEX_ATTR_POSITION = 0;
     const GLuint VERTEX_ATTR_NORMAL = 1;
@@ -84,7 +86,42 @@ int main(int argc, char** argv) {
     glEnableVertexAttribArray(VERTEX_ATTR_TEXTURE);
 
     // Re-binding du VBO sur la cible GL_ARRAY_BUFFER pour glVertexAttribPointer:
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, sphereVbo);
+
+    // Specification des attributs de position :
+    glVertexAttribPointer(VERTEX_ATTR_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(ShapeVertex), (const GLvoid *) offsetof(ShapeVertex, position));
+    glVertexAttribPointer(VERTEX_ATTR_NORMAL, 3, GL_FLOAT, GL_FALSE, sizeof(ShapeVertex), (const GLvoid *) offsetof(ShapeVertex, normal));
+    glVertexAttribPointer(VERTEX_ATTR_TEXTURE, 2, GL_FLOAT, GL_FALSE, sizeof(ShapeVertex), (const GLvoid *) offsetof(ShapeVertex, texCoords));
+
+    // Debinding d'un VBO sur la cible GL_ARRAY_BUFFER:
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    // Debinding de l'unique VAO:
+    glBindVertexArray(0);
+
+    GLuint cubeVbo, cubeVao;
+
+    glGenBuffers(1, &cubeVbo);
+
+    glBindBuffer(GL_ARRAY_BUFFER, cubeVbo);
+
+    glBufferData(GL_ARRAY_BUFFER, cube.getVertexCount() * sizeof(ShapeVertex), cube.getDataPointer(), GL_DYNAMIC_DRAW);
+
+    // Debinding d'un VBO sur la cible GL_ARRAY_BUFFER:
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    glGenVertexArrays(1, &cubeVao);
+
+    // Binding de l'unique VAO:
+    glBindVertexArray(cubeVao);
+
+
+    glEnableVertexAttribArray(VERTEX_ATTR_POSITION);
+    glEnableVertexAttribArray(VERTEX_ATTR_NORMAL);
+    glEnableVertexAttribArray(VERTEX_ATTR_TEXTURE);
+
+    // Re-binding du VBO sur la cible GL_ARRAY_BUFFER pour glVertexAttribPointer:
+    glBindBuffer(GL_ARRAY_BUFFER, cubeVbo);
 
     // Specification des attributs de position :
     glVertexAttribPointer(VERTEX_ATTR_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(ShapeVertex), (const GLvoid *) offsetof(ShapeVertex, position));
@@ -112,7 +149,7 @@ int main(int argc, char** argv) {
     while (!glfwWindowShouldClose(windowManager)) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glBindVertexArray(vao);
+        glBindVertexArray(sphereVao);
 
         glm::mat4 VMatrix = camera.getViewMatrix();
 
@@ -130,49 +167,55 @@ int main(int argc, char** argv) {
 
         glBindVertexArray(0);
 
+        glBindVertexArray(cubeVao);
+
+        glDrawArrays(GL_TRIANGLES, 0, cube.getVertexCount());
+
+        glBindVertexArray(0);
+
         glfwSwapBuffers(windowManager);
         glfwPollEvents();
         int stateWKey = glfwGetKey(windowManager, GLFW_KEY_W);
         if (stateWKey == GLFW_PRESS) {
             MMatrix = glm::translate(MMatrix, glm::vec3(0., 0., -0.1));
-            sphere.translateFrontOrBack(-1);
-            glBindBuffer(GL_ARRAY_BUFFER, vbo);
+            sphere.translateFrontOrBack(-1, cube.getCircles());
+            glBindBuffer(GL_ARRAY_BUFFER, sphereVbo);
             glBufferSubData(GL_ARRAY_BUFFER, 0, sphere.getVertexCount() * sizeof(ShapeVertex), sphere.getDataPointer());
             glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
         int stateSKey = glfwGetKey(windowManager, GLFW_KEY_S);
         if (stateSKey == GLFW_PRESS) {
             MMatrix = glm::translate(MMatrix, glm::vec3(0., 0., 0.1));
-            sphere.translateFrontOrBack(1);
-            glBindBuffer(GL_ARRAY_BUFFER, vbo);
+            sphere.translateFrontOrBack(1, cube.getCircles());
+            glBindBuffer(GL_ARRAY_BUFFER, sphereVbo);
             glBufferSubData(GL_ARRAY_BUFFER, 0, sphere.getVertexCount() * sizeof(ShapeVertex), sphere.getDataPointer());
             glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
         int stateAKey = glfwGetKey(windowManager, GLFW_KEY_A);
         if (stateAKey == GLFW_PRESS) {
-            sphere.translateLeftOrRight(-1);
-            glBindBuffer(GL_ARRAY_BUFFER, vbo);
+            sphere.translateLeftOrRight(-1, cube.getCircles());
+            glBindBuffer(GL_ARRAY_BUFFER, sphereVbo);
             glBufferSubData(GL_ARRAY_BUFFER, 0, sphere.getVertexCount() * sizeof(ShapeVertex), sphere.getDataPointer());
             glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
         int stateDKey = glfwGetKey(windowManager, GLFW_KEY_D);
         if (stateDKey == GLFW_PRESS) {
-            sphere.translateLeftOrRight(1);
-            glBindBuffer(GL_ARRAY_BUFFER, vbo);
+            sphere.translateLeftOrRight(1, cube.getCircles());
+            glBindBuffer(GL_ARRAY_BUFFER, sphereVbo);
             glBufferSubData(GL_ARRAY_BUFFER, 0, sphere.getVertexCount() * sizeof(ShapeVertex), sphere.getDataPointer());
             glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
         int stateSpaceKey = glfwGetKey(windowManager, GLFW_KEY_SPACE);
         if (stateSpaceKey == GLFW_PRESS) {
-            sphere.translateUpOrDown(1);
-            glBindBuffer(GL_ARRAY_BUFFER, vbo);
+            sphere.translateUpOrDown(1, cube.getCircles());
+            glBindBuffer(GL_ARRAY_BUFFER, sphereVbo);
             glBufferSubData(GL_ARRAY_BUFFER, 0, sphere.getVertexCount() * sizeof(ShapeVertex), sphere.getDataPointer());
             glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
         int stateCtrKey = glfwGetKey(windowManager, GLFW_KEY_LEFT_CONTROL);
         if (stateCtrKey == GLFW_PRESS) {
-            sphere.translateUpOrDown(-1);
-            glBindBuffer(GL_ARRAY_BUFFER, vbo);
+            sphere.translateUpOrDown(-1, cube.getCircles());
+            glBindBuffer(GL_ARRAY_BUFFER, sphereVbo);
             glBufferSubData(GL_ARRAY_BUFFER, 0, sphere.getVertexCount() * sizeof(ShapeVertex), sphere.getDataPointer());
             glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
@@ -205,8 +248,8 @@ int main(int argc, char** argv) {
         xpos = tmpxPos;
         ypos = tmpyPos;
     }
-    glDeleteBuffers(1, &vbo);
-    glDeleteVertexArrays(1, &vao);
+    glDeleteBuffers(1, &sphereVbo);
+    glDeleteVertexArrays(1, &sphereVao);
     //glDeleteTextures(1, &textures);
 
     glfwDestroyWindow(windowManager);

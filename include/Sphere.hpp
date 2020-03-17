@@ -17,32 +17,41 @@ public:
         m_radius(radius),
         m_discLat(discLat),
         m_discLong(discLong){
-        m_centerPt = c3ga::point(0., 0., 0.);
+        m_centerPt = c3ga::point(0., 0., -5.);
         build(radius, discLat, discLong); // Construction (voir le .cpp)
     }
 
     // Alloue et construit les données (implantation dans le .cpp)
     void build(GLfloat radius, GLsizei discLat, GLsizei discLong);
 
-    void translateFrontOrBack(int direction){
-        c3ga::Mvec<double> T = (direction * 10) - (0.5 * c3ga::e2<double>() * c3ga::ei<double>());
-        m_centerPt = T * m_centerPt * T.inv();
-        m_centerPt.roundZero(1e-10);
-        build(m_radius, m_discLat, m_discLong);
+    void translateFrontOrBack(int direction, std::vector<c3ga::Mvec<double>> circles){
+        c3ga::Mvec<double> T = (direction * 100) - (0.5 * c3ga::e2<double>() * c3ga::ei<double>());
+        c3ga::Mvec<double> tmpCenterPt = T * m_centerPt * T.inv();
+        if(!(willCollide(tmpCenterPt, circles))) {
+            m_centerPt = tmpCenterPt;
+            m_centerPt.roundZero(1e-10);
+            build(m_radius, m_discLat, m_discLong);
+        }
     }
 
-    void translateLeftOrRight(int direction){
-        c3ga::Mvec<double> T = (direction * 10) - (0.5 * c3ga::e1<double>() * c3ga::ei<double>());
-        m_centerPt = T * m_centerPt * T.inv();
-        m_centerPt.roundZero(1e-10);
-        build(m_radius, m_discLat, m_discLong);
+    void translateLeftOrRight(int direction, std::vector<c3ga::Mvec<double>> circles){
+        c3ga::Mvec<double> T = (direction * 100) - (0.5 * c3ga::e1<double>() * c3ga::ei<double>());
+        c3ga::Mvec<double> tmpCenterPt = T * m_centerPt * T.inv();
+        if(!(willCollide(tmpCenterPt, circles))) {
+            m_centerPt = tmpCenterPt;
+            m_centerPt.roundZero(1e-10);
+            build(m_radius, m_discLat, m_discLong);
+        }
     }
 
-    void translateUpOrDown(int direction){
-        c3ga::Mvec<double> T = (direction * 10) - (0.5 * c3ga::e3<double>() * c3ga::ei<double>());
-        m_centerPt = T * m_centerPt * T.inv();
-        m_centerPt.roundZero(1e-10);
-        build(m_radius, m_discLat, m_discLong);
+    void translateUpOrDown(int direction, std::vector<c3ga::Mvec<double>> circles){
+        c3ga::Mvec<double> T = (direction * 100) - (0.5 * c3ga::e3<double>() * c3ga::ei<double>());
+        c3ga::Mvec<double> tmpCenterPt = T * m_centerPt * T.inv();
+        if(!(willCollide(tmpCenterPt, circles))) {
+            m_centerPt = tmpCenterPt;
+            m_centerPt.roundZero(1e-10);
+            build(m_radius, m_discLat, m_discLong);
+        }
     }
 
     // Renvoit le pointeur vers les données
@@ -58,6 +67,8 @@ public:
     c3ga::Mvec<double> getCenterPt(){
         return m_centerPt;
     }
+
+    bool willCollide(c3ga::Mvec<double> centerPt, std::vector<c3ga::Mvec<double>> circles);
 
 private:
     c3ga::Mvec<double> m_centerPt;

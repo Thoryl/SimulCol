@@ -10,7 +10,7 @@ class FreeflyCamera {
 public :
 
     FreeflyCamera():
-                    m_Position(glm::vec3(0, 0, 5)),
+                    m_Position(glm::vec3(-2.5, 0, 10)),
                     m_fPhi(M_PI),
                     m_fTheta(0){
         computeDirectionVectors();
