@@ -17,7 +17,7 @@ public:
         m_radius(radius),
         m_discLat(discLat),
         m_discLong(discLong){
-        m_centerPt = c3ga::point(0., 0., -5.);
+        m_centerPt = c3ga::point(-5., 0., 0.);
         build(radius, discLat, discLong); // Construction (voir le .cpp)
     }
 
