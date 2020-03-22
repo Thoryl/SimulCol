@@ -116,15 +116,12 @@ bool Sphere::willCollide(c3ga::Mvec<double> centerPt, std::vector<c3ga::Mvec<dou
         extractDualCircle(!circles[i], radiusCircle, centerCircle, direction);
         auto dotProductPointCircle = (boundPoints[i] ^ centerCircle) | !circles[i];
         unsigned int count = 0;
-        auto euclidienDistance = sqrt(
-                ((centerCircle[c3ga::E1] - boundPoints[i][c3ga::E1]) * (centerCircle[c3ga::E1] - boundPoints[i][c3ga::E1])) +
-                ((centerCircle[c3ga::E2] - boundPoints[i][c3ga::E2]) * (centerCircle[c3ga::E2] - boundPoints[i][c3ga::E2])) +
-                ((centerCircle[c3ga::E3] - boundPoints[i][c3ga::E3]) * (centerCircle[c3ga::E3] - boundPoints[i][c3ga::E3])));
-        if(euclidienDistance <= radiusCircle) {
+        auto absDotProductPointCircle = abs(dotProductPointCircle);
+        if(absDotProductPointCircle <= radiusCircle) {
             if (dotProductPointCircle >= 0) {
                 std::cout << "Index : " << i << std::endl;
                 std::cout << "Radius : " << radiusCircle << std::endl;
-                std::cout << "Distance : " << euclidienDistance << std::endl;
+                std::cout << "Distance : " << absDotProductPointCircle << std::endl;
                 std::cout << "Point Bound X : " << boundPoints[i][c3ga::E1] << " Y : " << boundPoints[i][c3ga::E2] << " Z : " << boundPoints[i][c3ga::E3] << std::endl;
                 std::cout << "Circle X : " << centerCircle[c3ga::E1] << " Y : " << centerCircle[c3ga::E2] << " Z : " << centerCircle[c3ga::E3] << std::endl;
                 for(auto circle : circles) {
