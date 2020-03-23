@@ -29,26 +29,55 @@ La sphère est construite à partir d'un point. Ce point va nous servir de centr
 
 ![Centre de la sphère](IMGR/pointcenter.png)
 
-On va ensuite appliquer la formule suivante sur ce point `u_c` :
+On va ensuite appliquer la formule suivante sur ce point $u_c$ :
 
 \begin{equation}
 S^* = u_c - \frac{r^2}{2}e_\infty
 \end{equation}
 
-C'est formule va nous permettre d'obtenir la sphère dual.
-En dualisant cette dernière, on obtient alors notre sphère avec le rayon choisit.
+Avec $r$ le rayon de la sphère.
+
+Lorsque l'on applique cette formule sur le point, on va obtenir une sphère dual ayant pour centre notre point.
+On va ensuite dualiser cette sphère dual, ce qui va nous permettre d'obtenir une sphère "normal" que l'on
+utilisera pour évaluer les collisions.
 
 ![Sphère de rayon 1](IMGR/sphere.png)
 
 ## Cube
 
-Le cube est construit à partir de plusieurs points.
+Le cube est construit à partir de plusieurs points repésentant les sommets de ce dernier.
 
 ![Points du cube](IMGR/pointcube.png)
 
-Ensuite on crée les lignes entre chaque points.
+Ensuite on crée les lignes entre chaque points, lignes représentant les arêtes du cube.
+Cela nous permet d'avoir une représentation d'un cube en c3ga.
 
 ![Lignes du cube](IMGR/linecube.png)
+
+Les points et les lignes servent à évaluer les collisions.
+
+# OpenGL
+
+## Modélisation
+
+La modélisation des formes est effectuée avec OpenGL.
+
+Le création des vertex de la sphère se font en fonction du centre donné avec c3ga.
+Le cube est créé en (0, 0, 0) et pour chaque faces créées on effectue la création des sommets et lignes c3ga
+correspondant.
+
+## Déplacement
+
+On dispose d'une caméra dite Freefly. Les déplacements sont effectuer avec glm, donc tout est géré sur
+le GPU.
+
+On aussi la possibilité de déplacer la sphère. Ce qui est intéressant pour le déplacement de la sphère
+est que j'ai fais en sorte de ne pas utiliser la translation effectuée par glm.
+
+À la place, j'effectue une translation à l'aide d'un translator et ensuite de je mets à jour les vertex
+de la sphère en fonction de nouvelles coordonnées du centre de la sphère.
+
+Cela me permet de montrer que l'on peut aussi faire des translations avec c3ga en OpenGL.
 
 # Gestion de la collision
 
@@ -64,7 +93,7 @@ obtenue sont situés entre deux sommets du cube.
 Mais il faut aussi gérer les cas où seulement un seul point se situe entre les deux sommets.
 
 
-## Méthode finale
+## Méthode utilisée
 
 J'ai donc choisit de créer des cercles au niveau des faces du cube.
 
@@ -84,29 +113,6 @@ On doit alors comparer la paire de points qui est un point de la sphère et le c
 l'inner product avec le dit cercle.
 
 J'ai construit les cercles de sorte que si le point de la sphère est dans le cube alors l'innert product est > 0
-
-# OpenGL
-
-## Modélisation
-
-La modélisation des formes est effectuée avec OpenGL.
-
-Le création des vertex de la sphère se font en fonction du centre donné avec c3ga.
-Le cube est créé en (0, 0, 0) et pour chaque face créée on effectue la création des sommets, lignes et
-cercles c3ga correspondant.
-
-## Déplacement
-
-On dispose d'une caméra dite Freefly. Les déplacements sont effectuer avec glm, donc tout est géré sur
-le GPU ce qui n'est pas forcément intéressant.
-
-On aussi la possibilité de déplacer la sphère. Ce qui est intéressant pour le déplacement de la sphère
-est que j'ai fais en sorte de ne pas utiliser la translation effectuée par glm.
-
-À la place, j'effectue une translation à l'aide d'un translator et ensuite de je mets à jour les vertex
-de la sphère en fonction de nouvelles coordonnées du centre de la sphère.
-
-Cela me permet de montrer que l'on peut aussi faire des translations avec c3ga en OpenGL.
 
 # Conclusion
 
